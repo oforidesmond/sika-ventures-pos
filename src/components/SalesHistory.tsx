@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Printer, Search, Calendar, DollarSign } from 'lucide-react';
+import { Printer, Search, Calendar, DollarSign, HandCoins } from 'lucide-react';
 import { Sale } from '../App';
 
 interface SalesHistoryProps {
@@ -32,15 +32,7 @@ export default function SalesHistory({ sales }: SalesHistoryProps) {
           <h2 className="text-gray-800 mb-6">Sales History</h2>
           
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-gray-100">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-gray-600">Total Sales</span>
-                <Calendar className="w-6 h-6 text-blue-500" />
-              </div>
-              <p className="text-gray-800">{sales.length}</p>
-            </div>
-            
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-gray-100">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-gray-600">Today's Sales</span>
@@ -51,10 +43,10 @@ export default function SalesHistory({ sales }: SalesHistoryProps) {
             
             <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-gray-100">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-gray-600">Total Revenue</span>
-                <DollarSign className="w-6 h-6 text-green-500" />
+                <span className="text-gray-600">Today's Revenue</span>
+                <HandCoins className="w-6 h-6 text-green-500" />
               </div>
-              <p className="text-green-600">${totalRevenue.toFixed(2)}</p>
+              <p className="text-green-600">₵{todaysRevenue.toFixed(2)}</p>
             </div>
           </div>
 
@@ -102,7 +94,7 @@ export default function SalesHistory({ sales }: SalesHistoryProps) {
                         {sale.items.reduce((sum, item) => sum + item.quantity, 0)} items
                       </td>
                       <td className="px-8 py-5 text-gray-700">{sale.paymentMethod}</td>
-                      <td className="px-8 py-5 text-green-600">${sale.total.toFixed(2)}</td>
+                      <td className="px-8 py-5 text-green-600">₵{sale.total.toFixed(2)}</td>
                       <td className="px-8 py-5">
                         <button
                           onClick={() => handlePrintReceipt(sale)}

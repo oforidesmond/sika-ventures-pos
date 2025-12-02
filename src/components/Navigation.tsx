@@ -24,7 +24,7 @@ export default function Navigation({ currentScreen, onNavigate, onLogout }: Navi
             <div className="bg-gradient-to-br from-blue-500 to-teal-500 rounded-2xl p-3">
               <ShoppingCart className="w-7 h-7 text-white" strokeWidth={2.5} />
             </div>
-            <h2 className="text-gray-800">POS System</h2>
+            <h2 className="text-gray-800">Sika Ventures POS</h2>
           </div>
           
           <div className="flex gap-2 ml-8">

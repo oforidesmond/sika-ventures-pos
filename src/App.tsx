@@ -16,6 +16,8 @@ export interface CartItem {
   quantity: number;
 }
 
+export type PaymentMethod = 'Cash' | 'Mobile Money' | 'Card' | 'Transfer';
+
 export interface Sale {
   id: string;
   date: string;
@@ -24,7 +26,7 @@ export interface Sale {
   subtotal: number;
   discount: number;
   total: number;
-  paymentMethod: string;
+  paymentMethod: PaymentMethod;
 }
 
 export default function App() {

@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Search, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { Search, Minus, Plus, Trash2, ShoppingBag, ChevronDown } from 'lucide-react';
 import { CartItem, Sale } from '../App';
 
 interface Product {
   id: string;
   name: string;
   price: number;
-  category: string;
 }
 
 interface SalesScreenProps {
@@ -15,41 +14,41 @@ interface SalesScreenProps {
   onCompleteSale: (sale: Sale) => void;
 }
 
-const CATEGORIES = ['All', 'Beverages', 'Snacks', 'Electronics', 'Household', 'Personal Care'];
-
 const PRODUCTS: Product[] = [
-  { id: '1', name: 'Coca Cola', price: 2.50, category: 'Beverages' },
-  { id: '2', name: 'Pepsi', price: 2.50, category: 'Beverages' },
-  { id: '3', name: 'Water Bottle', price: 1.00, category: 'Beverages' },
-  { id: '4', name: 'Orange Juice', price: 3.50, category: 'Beverages' },
-  { id: '5', name: 'Coffee', price: 4.00, category: 'Beverages' },
-  { id: '6', name: 'Chips', price: 3.00, category: 'Snacks' },
-  { id: '7', name: 'Chocolate Bar', price: 2.00, category: 'Snacks' },
-  { id: '8', name: 'Cookies', price: 3.50, category: 'Snacks' },
-  { id: '9', name: 'Candy', price: 1.50, category: 'Snacks' },
-  { id: '10', name: 'Nuts', price: 4.50, category: 'Snacks' },
-  { id: '11', name: 'USB Cable', price: 8.99, category: 'Electronics' },
-  { id: '12', name: 'Phone Charger', price: 12.99, category: 'Electronics' },
-  { id: '13', name: 'Batteries AA', price: 5.99, category: 'Electronics' },
-  { id: '14', name: 'Earphones', price: 15.99, category: 'Electronics' },
-  { id: '15', name: 'Paper Towels', price: 4.99, category: 'Household' },
-  { id: '16', name: 'Dish Soap', price: 3.99, category: 'Household' },
-  { id: '17', name: 'Trash Bags', price: 6.99, category: 'Household' },
-  { id: '18', name: 'Hand Soap', price: 3.49, category: 'Personal Care' },
-  { id: '19', name: 'Shampoo', price: 7.99, category: 'Personal Care' },
-  { id: '20', name: 'Toothpaste', price: 4.49, category: 'Personal Care' },
+  { id: '1', name: 'Coca Cola', price: 2.50 },
+  { id: '2', name: 'Pepsi', price: 2.50 },
+  { id: '3', name: 'Water Bottle', price: 1.00 },
+  { id: '4', name: 'Orange Juice', price: 3.50 },
+  { id: '5', name: 'Coffee', price: 4.00 },
+  { id: '6', name: 'Chips', price: 3.00 },
+  { id: '7', name: 'Chocolate Bar', price: 2.00 },
+  { id: '8', name: 'Cookies', price: 3.50 },
+  { id: '9', name: 'Candy', price: 1.50 },
+  { id: '10', name: 'Nuts', price: 4.50 },
+  { id: '11', name: 'USB Cable', price: 8.99 },
+  { id: '12', name: 'Phone Charger', price: 12.99 },
+  { id: '13', name: 'Batteries AA', price: 5.99 },
+  { id: '14', name: 'Earphones', price: 15.99 },
+  { id: '15', name: 'Paper Towels', price: 4.99 },
+  { id: '16', name: 'Dish Soap', price: 3.99 },
+  { id: '17', name: 'Trash Bags', price: 6.99 },
+  { id: '18', name: 'Hand Soap', price: 3.49 },
+  { id: '19', name: 'Shampoo', price: 7.99 },
+  { id: '20', name: 'Toothpaste', price: 4.49 },
 ];
 
+type PaymentMethod = 'Cash' | 'Mobile Money' | 'Card' | 'Transfer';
+
 export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScreenProps) {
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [discount, setDiscount] = useState(0);
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Cash');
+  
+  const filteredProducts = PRODUCTS.filter(product => 
+    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const filteredProducts = PRODUCTS.filter(product => {
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
 
   const addToCart = (product: Product) => {
     const existingItem = cart.find(item => item.id === product.id);
@@ -91,35 +90,23 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
       subtotal,
       discount,
       total,
-      paymentMethod: 'Cash',
+      paymentMethod,
     };
 
     onCompleteSale(sale);
   };
 
+  const paymentMethods: PaymentMethod[] = ['Cash', 'Mobile Money', 'Card', 'Transfer'];
+
+  const selectPaymentMethod = (method: PaymentMethod) => {
+    setPaymentMethod(method);
+    setShowPaymentMethods(false);
+  };
+
   return (
     <div className="h-full flex">
-      {/* Left Sidebar - Categories */}
-      <div className="w-64 bg-gray-50 border-r-2 border-gray-100 p-6">
-        <h3 className="text-gray-700 mb-4">Categories</h3>
-        <div className="space-y-2">
-          {CATEGORIES.map(category => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`w-full text-left px-5 py-4 rounded-xl transition-all ${
-                selectedCategory === category
-                  ? 'bg-gradient-to-r from-blue-500 to-teal-500 text-white shadow-lg'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Main Area - Products */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Search Bar */}
         <div className="p-6 border-b-2 border-gray-100">
@@ -144,11 +131,10 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
                 className="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-blue-500 hover:shadow-lg transition-all"
               >
                 <div className="mb-4">
-                  <h4 className="text-gray-800 mb-2">{product.name}</h4>
-                  <p className="text-gray-500">{product.category}</p>
+                  <h4 className="text-gray-800">{product.name}</h4>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-blue-600">${product.price.toFixed(2)}</span>
+                  <span className="text-blue-600">₵{product.price.toFixed(2)}</span>
                   <button
                     onClick={() => addToCart(product)}
                     className="bg-gradient-to-r from-blue-500 to-teal-500 text-white px-5 py-3 rounded-xl hover:from-blue-600 hover:to-teal-600 transition-all shadow-md hover:shadow-lg active:scale-95"
@@ -165,9 +151,39 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
       {/* Right Sidebar - Cart */}
       <div className="w-96 bg-gray-50 border-l-2 border-gray-100 flex flex-col">
         <div className="p-6 border-b-2 border-gray-100">
-          <div className="flex items-center gap-3">
-            <ShoppingBag className="w-7 h-7 text-blue-500" strokeWidth={2.5} />
-            <h3 className="text-gray-800">Cart ({cart.length})</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <ShoppingBag className="w-7 h-7 text-blue-500" strokeWidth={2.5} />
+              <h3 className="text-gray-800">Cart ({cart.length})</h3>
+            </div>
+            <div className="relative">
+              <button
+                onClick={() => setShowPaymentMethods(!showPaymentMethods)}
+                className="flex items-center gap-2 bg-white border-2 border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                {paymentMethod}
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              </button>
+              {showPaymentMethods && (
+                <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <div className="py-1">
+                    {paymentMethods.map((method) => (
+                      <button
+                        key={method}
+                        onClick={() => selectPaymentMethod(method)}
+                        className={`block w-full text-left px-4 py-2 text-sm ${
+                          paymentMethod === method 
+                            ? 'bg-blue-100 text-blue-700' 
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        {method}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -185,7 +201,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex-1">
                       <h5 className="text-gray-800 mb-1">{item.name}</h5>
-                      <p className="text-blue-600">${item.price.toFixed(2)}</p>
+                      <p className="text-blue-600">₵{item.price.toFixed(2)}</p>
                     </div>
                     <button
                       onClick={() => removeFromCart(item.id)}
@@ -209,7 +225,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
                       <Plus className="w-5 h-5 text-gray-600" />
                     </button>
                     <span className="ml-auto text-gray-800">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ₵{(item.price * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -222,7 +238,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
         <div className="border-t-2 border-gray-100 p-6 space-y-4">
           <div className="flex justify-between text-gray-600">
             <span>Subtotal:</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>₵{subtotal.toFixed(2)}</span>
           </div>
           
           <div className="flex items-center justify-between">
@@ -239,7 +255,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
 
           <div className="flex justify-between pt-4 border-t-2 border-gray-200">
             <span>Total:</span>
-            <span className="text-blue-600">${total.toFixed(2)}</span>
+            <span className="text-blue-600">₵{total.toFixed(2)}</span>
           </div>
 
           <button

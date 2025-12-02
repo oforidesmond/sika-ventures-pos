@@ -23,7 +23,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
           <div className="bg-gradient-to-br from-blue-500 to-teal-500 rounded-3xl p-6 mb-6">
             <ShoppingCart className="w-16 h-16 text-white" strokeWidth={2.5} />
           </div>
-          <h1 className="text-center mb-2">POS System</h1>
+          <h1 className="text-center mb-2">Sika Ventures POS</h1>
           <p className="text-gray-500 text-center">Sign in to continue</p>
         </div>
 

@@ -122,38 +122,6 @@ export default function SettingsScreen() {
                 placeholder="Enter store name"
               />
             </div>
-
-            <div>
-              <label className="block mb-3 text-gray-700">Currency</label>
-              <select className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:border-blue-500 transition-colors">
-                <option>USD ($)</option>
-                <option>EUR (€)</option>
-                <option>GBP (£)</option>
-                <option>JPY (¥)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block mb-3 text-gray-700">Tax Rate (%)</label>
-              <input
-                type="number"
-                defaultValue="8.5"
-                step="0.1"
-                className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:border-blue-500 transition-colors"
-                placeholder="0.0"
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-              <div>
-                <p className="text-gray-700 mb-1">Show tax on receipts</p>
-                <p className="text-gray-500 text-sm">Display tax breakdown on printed receipts</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" defaultChecked />
-                <div className="w-14 h-8 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-500"></div>
-              </label>
-            </div>
           </div>
         </div>
 
