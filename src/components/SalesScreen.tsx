@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Search, Minus, Plus, Trash2, ShoppingBag, ChevronDown } from 'lucide-react';
 import { CartItem, Sale } from '../App';
 
 interface Product {
   id: string;
   name: string;
-  price: number;
+  sellingPrice: number;
 }
+
+const PRODUCTS_API_URL = import.meta.env.VITE_PRODUCTS_API_URL ?? '/api/products';
 
 interface SalesScreenProps {
   cart: CartItem[];
@@ -14,38 +16,63 @@ interface SalesScreenProps {
   onCompleteSale: (sale: Sale) => void;
 }
 
-const PRODUCTS: Product[] = [
-  { id: '1', name: 'Coca Cola', price: 2.50 },
-  { id: '2', name: 'Pepsi', price: 2.50 },
-  { id: '3', name: 'Water Bottle', price: 1.00 },
-  { id: '4', name: 'Orange Juice', price: 3.50 },
-  { id: '5', name: 'Coffee', price: 4.00 },
-  { id: '6', name: 'Chips', price: 3.00 },
-  { id: '7', name: 'Chocolate Bar', price: 2.00 },
-  { id: '8', name: 'Cookies', price: 3.50 },
-  { id: '9', name: 'Candy', price: 1.50 },
-  { id: '10', name: 'Nuts', price: 4.50 },
-  { id: '11', name: 'USB Cable', price: 8.99 },
-  { id: '12', name: 'Phone Charger', price: 12.99 },
-  { id: '13', name: 'Batteries AA', price: 5.99 },
-  { id: '14', name: 'Earphones', price: 15.99 },
-  { id: '15', name: 'Paper Towels', price: 4.99 },
-  { id: '16', name: 'Dish Soap', price: 3.99 },
-  { id: '17', name: 'Trash Bags', price: 6.99 },
-  { id: '18', name: 'Hand Soap', price: 3.49 },
-  { id: '19', name: 'Shampoo', price: 7.99 },
-  { id: '20', name: 'Toothpaste', price: 4.49 },
-];
-
 type PaymentMethod = 'Cash' | 'Mobile Money' | 'Card' | 'Transfer';
 
 export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScreenProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [productsError, setProductsError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [discount, setDiscount] = useState(0);
   const [showPaymentMethods, setShowPaymentMethods] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Cash');
   
-  const filteredProducts = PRODUCTS.filter(product => 
+  const fetchProducts = useCallback(async () => {
+    setIsLoadingProducts(true);
+    setProductsError(null);
+
+    try {
+      const response = await fetch(PRODUCTS_API_URL);
+      if (!response.ok) {
+        throw new Error(`Failed to load products (status ${response.status})`);
+      }
+
+      const payload = await response.json();
+      const list = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload?.products)
+            ? payload.products
+            : [];
+
+      if (!Array.isArray(list)) {
+        throw new Error('Unexpected products response shape');
+      }
+
+      const normalizedProducts: Product[] = list
+        .map((item: any) => ({
+          id: String(item.id ?? item._id ?? ''),
+          name: item.name ?? 'Unnamed Product',
+          sellingPrice: Number(item.sellingPrice ?? item.price ?? 0),
+        }))
+        .filter((product) => product.id && product.name && !Number.isNaN(product.sellingPrice));
+
+      setProducts(normalizedProducts);
+    } catch (error) {
+      console.error('Failed to fetch products', error);
+      setProductsError(error instanceof Error ? error.message : 'Failed to load products');
+      setProducts([]);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+  
+  const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -59,7 +86,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
           : item
       ));
     } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
+      setCart([...cart, { ...product, price: product.sellingPrice, quantity: 1 }]);
     }
   };
 
@@ -125,7 +152,31 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
         {/* Product Grid */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredProducts.map(product => (
+            {isLoadingProducts && (
+              <div className="col-span-full py-10 text-center text-gray-500">
+                Loading products...
+              </div>
+            )}
+
+            {!isLoadingProducts && productsError && (
+              <div className="col-span-full text-center bg-red-50 border border-red-200 text-red-600 p-8 rounded-2xl">
+                <p className="mb-4 font-medium">{productsError}</p>
+                <button
+                  onClick={fetchProducts}
+                  className="px-5 py-3 bg-red-600 text-white rounded-xl hover:bg-red-500 transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {!isLoadingProducts && !productsError && filteredProducts.length === 0 && (
+              <div className="col-span-full py-10 text-center text-gray-500">
+                No products found.
+              </div>
+            )}
+
+            {!isLoadingProducts && !productsError && filteredProducts.map(product => (
               <div
                 key={product.id}
                 className="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-blue-500 hover:shadow-lg transition-all"
@@ -134,7 +185,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
                   <h4 className="text-gray-800">{product.name}</h4>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-blue-600">₵{product.price.toFixed(2)}</span>
+                  <span className="text-blue-600">₵{product.sellingPrice.toFixed(2)}</span>
                   <button
                     onClick={() => addToCart(product)}
                     className="bg-gradient-to-r from-blue-500 to-teal-500 text-white px-5 py-3 rounded-xl hover:from-blue-600 hover:to-teal-600 transition-all shadow-md hover:shadow-lg active:scale-95"
