@@ -1,8 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Printer, CheckCircle, XCircle, Settings, Info } from 'lucide-react';
+
+interface ShopInfo {
+  shopName: string;
+  address: string;
+  phoneNumber: string;
+}
 
 export default function SettingsScreen() {
   const [printTestStatus, setPrintTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
+  const [shopInfo, setShopInfo] = useState<ShopInfo>({
+    shopName: '',
+    address: '',
+    phoneNumber: ''
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  // Load saved shop info on component mount
+  useEffect(() => {
+    try {
+      const savedInfo = localStorage.getItem('shopInfo');
+      if (savedInfo) {
+        setShopInfo(JSON.parse(savedInfo));
+      }
+    } catch (error) {
+      console.error('Failed to load shop info:', error);
+    }
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setShopInfo(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSaveShopInfo = () => {
+    setIsSaving(true);
+    setSaveStatus('saving');
+    
+    try {
+      localStorage.setItem('shopInfo', JSON.stringify(shopInfo));
+      setSaveStatus('saved');
+      
+      // Reset save status after 3 seconds
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 3000);
+    } catch (error) {
+      console.error('Failed to save shop info:', error);
+      setSaveStatus('error');
+      
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 3000);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handlePrintTest = () => {
     setPrintTestStatus('testing');
@@ -114,14 +171,78 @@ export default function SettingsScreen() {
 
           <div className="space-y-6">
             <div>
-              <label className="block mb-3 text-gray-700">Store Name</label>
+              <label className="block mb-3 text-gray-700">Shop Name</label>
               <input
                 type="text"
-                defaultValue="My Shop"
-                className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:border-blue-500 transition-colors"
-                placeholder="Enter store name"
+                name="shopName"
+                value={shopInfo.shopName}
+                onChange={handleInputChange}
+                className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:border-blue-500 transition-colors mb-4"
+                placeholder="Enter shop name"
               />
             </div>
+            
+            <div>
+              <label className="block mb-3 text-gray-700">Address</label>
+              <input
+                type="text"
+                name="address"
+                value={shopInfo.address}
+                onChange={handleInputChange}
+                className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:border-blue-500 transition-colors mb-4"
+                placeholder="Enter shop address"
+              />
+            </div>
+            
+            <div>
+              <label className="block mb-3 text-gray-700">Phone Number</label>
+              <input
+                type="tel"
+                name="phoneNumber"
+                value={shopInfo.phoneNumber}
+                onChange={handleInputChange}
+                className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:border-blue-500 transition-colors mb-6"
+                placeholder="Enter phone number"
+              />
+            </div>
+            
+            <button
+              onClick={handleSaveShopInfo}
+              disabled={isSaving}
+              className={`w-full flex items-center justify-center gap-3 px-8 py-5 rounded-2xl transition-all shadow-md ${
+                isSaving
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : saveStatus === 'saved'
+                  ? 'bg-green-500 text-white'
+                  : saveStatus === 'error'
+                  ? 'bg-red-500 text-white'
+                  : 'bg-gradient-to-r from-blue-500 to-teal-500 text-white hover:from-blue-600 hover:to-teal-600 hover:shadow-lg active:scale-95'
+              }`}
+            >
+              {isSaving ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Saving...</span>
+                </>
+              ) : saveStatus === 'saved' ? (
+                <>
+                  <CheckCircle className="w-6 h-6" />
+                  <span>Saved Successfully!</span>
+                </>
+              ) : saveStatus === 'error' ? (
+                <>
+                  <XCircle className="w-6 h-6" />
+                  <span>Save Failed</span>
+                </>
+              ) : (
+                <>
+                  <span>Save Shop Information</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
 

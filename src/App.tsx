@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginScreen from './components/LoginScreen';
 import SalesScreen from './components/SalesScreen';
 import ReceiptPreview from './components/ReceiptPreview';
@@ -27,6 +27,7 @@ export interface Sale {
   discount: number;
   total: number;
   paymentMethod: PaymentMethod;
+  customerName?: string;
 }
 
 export default function App() {
@@ -36,12 +37,25 @@ export default function App() {
   const [currentSale, setCurrentSale] = useState<Sale | null>(null);
   const [salesHistory, setSalesHistory] = useState<Sale[]>([]);
 
+  // Check for existing auth token on mount
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      setIsLoggedIn(true);
+      setCurrentScreen('sales');
+    }
+  }, []);
+
   const handleLogin = () => {
     setIsLoggedIn(true);
     setCurrentScreen('sales');
   };
 
   const handleLogout = () => {
+    // Clear auth data
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+    
     setIsLoggedIn(false);
     setCurrentScreen('login');
     setCart([]);
@@ -71,7 +85,7 @@ export default function App() {
         onLogout={handleLogout}
       />
       
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
         {currentScreen === 'sales' && (
           <SalesScreen 
             cart={cart}

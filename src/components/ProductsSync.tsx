@@ -26,8 +26,8 @@ export default function ProductsSync() {
   };
 
   return (
-    <div className="h-full bg-gray-50 flex items-center justify-center p-8">
-      <div className="w-full max-w-3xl">
+    <div className="h-full bg-gray-50 p-8 overflow-y-auto">
+      <div className="w-full max-w-3xl mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-gray-800 mb-3">Products Sync</h2>
           <p className="text-gray-500">Keep your products synchronized with the cloud</p>

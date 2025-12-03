@@ -12,8 +12,28 @@ export default function ReceiptPreview({ sale, onBackToPOS }: ReceiptPreviewProp
     window.print();
   };
 
+  // Get shop info from localStorage
+  const getShopInfo = () => {
+    const shopInfoStr = localStorage.getItem('shopInfo');
+    if (shopInfoStr) {
+      try {
+        return JSON.parse(shopInfoStr);
+      } catch (e) {
+        console.error('Error parsing shop info:', e);
+      }
+    }
+    // Default values if no shop info found
+    return {
+      shopName: 'Sika Ventures',
+      address: 'Texpo Market, Spintex',
+      phoneNumber: '0554492626'
+    };
+  };
+
+  const shopInfo = getShopInfo();
+
   return (
-    <div className="h-full bg-gray-50 flex items-center justify-center p-8">
+    <div className="h-46 bg-gray-50 flex items-center justify-center p-8">
       <div className="w-full max-w-2xl">
         <div className="mb-6 flex gap-4">
           <button
@@ -34,10 +54,21 @@ export default function ReceiptPreview({ sale, onBackToPOS }: ReceiptPreviewProp
 
         {/* Receipt */}
         <div className="bg-white rounded-2xl shadow-xl p-12 border-2 border-gray-100">
+          {/* Customer Name */}
+          <div className="text-center mb-6">
+            <div className="border-b-2 border-gray-300 pb-2 mb-4">
+              <span className="text-gray-500 text-sm">Customer Name:</span>
+              <div className="mt-1 text-lg font-semibold text-gray-800">
+                {sale.customerName || '_________________________'}
+              </div>
+            </div>
+          </div>
+
+          {/* Shop Info */}
           <div className="text-center mb-8">
-            <h2 className="text-gray-800 mb-2">My Shop</h2>
-            <p className="text-gray-500">123 Main Street</p>
-            <p className="text-gray-500">Phone: (555) 123-4567</p>
+            <h2 className="text-gray-800 mb-2">{shopInfo.shopName}</h2>
+            <p className="text-gray-500">{shopInfo.address}</p>
+            <p className="text-gray-500">Phone: {shopInfo.phoneNumber}</p>
           </div>
 
           <div className="border-t-2 border-dashed border-gray-300 pt-6 mb-6">
@@ -70,8 +101,8 @@ export default function ReceiptPreview({ sale, onBackToPOS }: ReceiptPreviewProp
               <div key={index} className="flex mb-3 text-gray-700">
                 <div className="flex-1">{item.name}</div>
                 <div className="w-16 text-center">{item.quantity}</div>
-                <div className="w-24 text-right">${item.price.toFixed(2)}</div>
-                <div className="w-24 text-right">${(item.price * item.quantity).toFixed(2)}</div>
+                <div className="w-24 text-right">₵{item.price.toFixed(2)}</div>
+                <div className="w-24 text-right">₵{(item.price * item.quantity).toFixed(2)}</div>
               </div>
             ))}
           </div>
@@ -79,23 +110,46 @@ export default function ReceiptPreview({ sale, onBackToPOS }: ReceiptPreviewProp
           <div className="border-t-2 border-dashed border-gray-300 pt-6 space-y-3">
             <div className="flex justify-between text-gray-600">
               <span>Subtotal:</span>
-              <span>${sale.subtotal.toFixed(2)}</span>
+              <span>₵{sale.subtotal.toFixed(2)}</span>
             </div>
             {sale.discount > 0 && (
               <div className="flex justify-between text-gray-600">
                 <span>Discount:</span>
-                <span>-${sale.discount.toFixed(2)}</span>
+                <span>₵{sale.discount.toFixed(2)}</span>
               </div>
             )}
             <div className="flex justify-between pt-3 border-t-2 border-gray-300">
               <span>TOTAL:</span>
-              <span className="text-blue-600">${sale.total.toFixed(2)}</span>
+              <span className="text-blue-600">₵{sale.total.toFixed(2)}</span>
             </div>
           </div>
 
           <div className="text-center mt-8 pt-6 border-t-2 border-dashed border-gray-300">
-            <p className="text-gray-500 mb-2">Thank you for your purchase!</p>
+            <p className="text-gray-500 mb-6">Thank you for your purchase!</p>
             <p className="text-gray-400">Please come again</p>
+          </div>
+
+          {/* Signature Sections */}
+          <div className="mt-8 pt-6 border-t-2 border-dashed border-gray-300">
+            <div className="grid grid-cols-2 gap-8">
+              {/* Customer Signature */}
+              <div>
+                <div className="border-b-2 border-gray-400 pb-1 mb-2">
+                  <span className="text-gray-400 text-xs">Customer Signature</span>
+                </div>
+                <div className="h-12 border-dashed border-gray-300 flex items-center justify-center mb-4">
+                </div>
+              </div>
+              
+              {/* Shop Owner Signature */}
+              <div>
+                <div className="border-b-2 border-gray-400 pb-1 mb-2">
+                  <span className="text-gray-400 text-xs">Issued By</span>
+                </div>
+                <div className="h-12 border-dashed border-gray-300 flex items-center justify-center mb-4">
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

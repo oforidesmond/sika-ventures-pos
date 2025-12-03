@@ -26,6 +26,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
   const [discount, setDiscount] = useState(0);
   const [showPaymentMethods, setShowPaymentMethods] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Cash');
+  const [customerName, setCustomerName] = useState('');
   
   const fetchProducts = useCallback(async () => {
     setIsLoadingProducts(true);
@@ -118,6 +119,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
       discount,
       total,
       paymentMethod,
+      customerName: customerName.trim() || undefined,
     };
 
     onCompleteSale(sale);
@@ -238,6 +240,17 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
           </div>
         </div>
 
+        {/* Customer Name Input */}
+        <div className="px-6 pb-4">
+          <input
+            type="text"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+            placeholder="Customer Name (Optional)"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors bg-white"
+          />
+        </div>
+
         {/* Cart Items */}
         <div className="flex-1 overflow-y-auto p-6">
           {cart.length === 0 ? (
@@ -300,7 +313,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
               onChange={(e) => setDiscount(Math.max(0, parseFloat(e.target.value) || 0))}
               className="w-24 px-3 py-2 border-2 border-gray-200 rounded-lg text-right focus:outline-none focus:border-blue-500"
               placeholder="0.00"
-              step="0.01"
+              step="1"
             />
           </div>
 
