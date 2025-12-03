@@ -1,6 +1,6 @@
 import React from 'react';
 import { Printer, ArrowLeft } from 'lucide-react';
-import { Sale } from '../App';
+import { Sale, CartItem, formatPaymentMethod } from '../types/sales';
 
 interface ReceiptPreviewProps {
   sale: Sale;
@@ -74,7 +74,7 @@ export default function ReceiptPreview({ sale, onBackToPOS }: ReceiptPreviewProp
           <div className="border-t-2 border-dashed border-gray-300 pt-6 mb-6">
             <div className="flex justify-between mb-3 text-gray-600">
               <span>Receipt #:</span>
-              <span>{sale.id}</span>
+              <span>{sale.receiptNumber}</span>
             </div>
             <div className="flex justify-between mb-3 text-gray-600">
               <span>Date:</span>
@@ -86,7 +86,7 @@ export default function ReceiptPreview({ sale, onBackToPOS }: ReceiptPreviewProp
             </div>
             <div className="flex justify-between text-gray-600">
               <span>Payment:</span>
-              <span>{sale.paymentMethod}</span>
+              <span>{formatPaymentMethod(sale.paymentMethod)}</span>
             </div>
           </div>
 
@@ -97,8 +97,8 @@ export default function ReceiptPreview({ sale, onBackToPOS }: ReceiptPreviewProp
               <div className="w-24 text-right">Price</div>
               <div className="w-24 text-right">Total</div>
             </div>
-            {sale.items.map((item, index) => (
-              <div key={index} className="flex mb-3 text-gray-700">
+            {sale.items.map((item: CartItem, index: number) => (
+              <div key={`${item.id}-${index}`} className="flex mb-3 text-gray-700">
                 <div className="flex-1">{item.name}</div>
                 <div className="w-16 text-center">{item.quantity}</div>
                 <div className="w-24 text-right">₵{item.price.toFixed(2)}</div>
@@ -120,7 +120,7 @@ export default function ReceiptPreview({ sale, onBackToPOS }: ReceiptPreviewProp
             )}
             <div className="flex justify-between pt-3 border-t-2 border-gray-300">
               <span>TOTAL:</span>
-              <span className="text-blue-600">₵{sale.total.toFixed(2)}</span>
+              <span className="text-blue-600">₵{sale.totalAmount.toFixed(2)}</span>
             </div>
           </div>
 

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Search, Minus, Plus, Trash2, ShoppingBag, ChevronDown } from 'lucide-react';
-import { CartItem, Sale } from '../App';
+import { CartItem, Sale, PaymentMethod, paymentMethodLabels } from '../types/sales';
 
 interface Product {
   id: string;
@@ -13,10 +13,10 @@ const PRODUCTS_API_URL = import.meta.env.VITE_PRODUCTS_API_URL ?? '/api/products
 interface SalesScreenProps {
   cart: CartItem[];
   setCart: (cart: CartItem[]) => void;
-  onCompleteSale: (sale: Sale) => void;
+  onCompleteSale: (sale: Sale) => Promise<void>;
 }
 
-type PaymentMethod = 'Cash' | 'Mobile Money' | 'Card' | 'Transfer';
+const paymentMethods: PaymentMethod[] = ['CASH', 'MOBILE_MONEY', 'CARD', 'TRANSFER'];
 
 export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScreenProps) {
   const [products, setProducts] = useState<Product[]>([]);
@@ -25,8 +25,9 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
   const [searchQuery, setSearchQuery] = useState('');
   const [discount, setDiscount] = useState(0);
   const [showPaymentMethods, setShowPaymentMethods] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Cash');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH');
   const [customerName, setCustomerName] = useState('');
+  const [isCompletingSale, setIsCompletingSale] = useState(false);
   
   const fetchProducts = useCallback(async () => {
     setIsLoadingProducts(true);
@@ -106,26 +107,36 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const total = subtotal - discount;
 
-  const handleCompleteSale = () => {
-    if (cart.length === 0) return;
+  const handleCompleteSale = async () => {
+    if (cart.length === 0 || isCompletingSale) return;
 
-    const now = new Date();
-    const sale: Sale = {
-      id: `SALE-${Date.now()}`,
-      date: now.toLocaleDateString(),
-      time: now.toLocaleTimeString(),
-      items: [...cart],
-      subtotal,
-      discount,
-      total,
-      paymentMethod,
-      customerName: customerName.trim() || undefined,
-    };
+    setIsCompletingSale(true);
+    try {
+      const now = new Date();
+      const authUserRaw = localStorage.getItem('authUser');
+      const authUser = authUserRaw ? JSON.parse(authUserRaw) : null;
+      const userId = authUser?.id ?? 'offline-user';
+      const receiptNumber = `POS-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${now.getTime().toString().slice(-4)}`;
+      const sale: Sale = {
+        id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `SALE-${Date.now()}`,
+        receiptNumber,
+        userId,
+        date: now.toLocaleDateString(),
+        time: now.toLocaleTimeString(),
+        items: [...cart],
+        subtotal,
+        discount,
+        totalAmount: total,
+        paymentMethod,
+        customerName: customerName.trim() || undefined,
+        synced: false,
+      };
 
-    onCompleteSale(sale);
+      await onCompleteSale(sale);
+    } finally {
+      setIsCompletingSale(false);
+    }
   };
-
-  const paymentMethods: PaymentMethod[] = ['Cash', 'Mobile Money', 'Card', 'Transfer'];
 
   const selectPaymentMethod = (method: PaymentMethod) => {
     setPaymentMethod(method);
@@ -214,7 +225,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
                 onClick={() => setShowPaymentMethods(!showPaymentMethods)}
                 className="flex items-center gap-2 bg-white border-2 border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                {paymentMethod}
+                {paymentMethodLabels[paymentMethod]}
                 <ChevronDown className="w-4 h-4 text-gray-500" />
               </button>
               {showPaymentMethods && (
@@ -230,7 +241,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
                             : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
-                        {method}
+                        {paymentMethodLabels[method]}
                       </button>
                     ))}
                   </div>
@@ -324,14 +335,14 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
 
           <button
             onClick={handleCompleteSale}
-            disabled={cart.length === 0}
+            disabled={cart.length === 0 || isCompletingSale}
             className={`w-full py-6 rounded-2xl transition-all shadow-lg hover:shadow-xl active:scale-95 ${
-              cart.length === 0
+              cart.length === 0 || isCompletingSale
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600'
             }`}
           >
-            Complete Sale
+            {isCompletingSale ? 'Processing...' : 'Complete Sale'}
           </button>
         </div>
       </div>

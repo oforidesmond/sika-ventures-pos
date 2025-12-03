@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Printer, Search, Calendar, DollarSign, HandCoins } from 'lucide-react';
-import { Sale } from '../App';
+import { Sale, formatPaymentMethod, CartItem } from '../types/sales';
 
 interface SalesHistoryProps {
   sales: Sale[];
@@ -9,15 +9,15 @@ interface SalesHistoryProps {
 export default function SalesHistory({ sales }: SalesHistoryProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredSales = sales.filter(sale =>
-    sale.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredSales = sales.filter((sale) =>
+    sale.receiptNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
     sale.date.includes(searchQuery) ||
-    sale.paymentMethod.toLowerCase().includes(searchQuery.toLowerCase())
+    formatPaymentMethod(sale.paymentMethod).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalRevenue = sales.reduce((sum, sale) => sum + sale.total, 0);
+  const totalRevenue = sales.reduce((sum: number, sale: Sale) => sum + sale.totalAmount, 0);
   const todaysSales = sales.filter(sale => sale.date === new Date().toLocaleDateString());
-  const todaysRevenue = todaysSales.reduce((sum, sale) => sum + sale.total, 0);
+  const todaysRevenue = todaysSales.reduce((sum: number, sale: Sale) => sum + sale.totalAmount, 0);
 
   const handlePrintReceipt = (sale: Sale) => {
     // In a real app, this would open a print dialog with the specific receipt
@@ -87,14 +87,14 @@ export default function SalesHistory({ sales }: SalesHistoryProps) {
                 <tbody>
                   {filteredSales.map((sale) => (
                     <tr key={sale.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                      <td className="px-8 py-5 text-gray-700">{sale.id}</td>
+                      <td className="px-8 py-5 text-gray-700">{sale.receiptNumber}</td>
                       <td className="px-8 py-5 text-gray-700">{sale.date}</td>
                       <td className="px-8 py-5 text-gray-700">{sale.time}</td>
                       <td className="px-8 py-5 text-gray-700">
-                        {sale.items.reduce((sum, item) => sum + item.quantity, 0)} items
+                        {sale.items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0)} items
                       </td>
-                      <td className="px-8 py-5 text-gray-700">{sale.paymentMethod}</td>
-                      <td className="px-8 py-5 text-green-600">₵{sale.total.toFixed(2)}</td>
+                      <td className="px-8 py-5 text-gray-700">{formatPaymentMethod(sale.paymentMethod)}</td>
+                      <td className="px-8 py-5 text-green-600">₵{sale.totalAmount.toFixed(2)}</td>
                       <td className="px-8 py-5">
                         <button
                           onClick={() => handlePrintReceipt(sale)}

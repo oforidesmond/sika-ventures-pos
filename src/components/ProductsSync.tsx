@@ -1,28 +1,30 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Cloud, CloudOff, CheckCircle, Clock, Upload, Download, RefreshCw } from 'lucide-react';
 
-export default function ProductsSync() {
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSync, setLastSync] = useState('2024-12-01 10:30 AM');
-  const [pendingUploads, setPendingUploads] = useState(3);
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
+interface ProductsSyncProps {
+  pendingSales: number;
+  isSyncing: boolean;
+  lastSync: string | null;
+  onSyncSales: () => Promise<void>;
+}
 
-  const handleSync = () => {
-    setIsSyncing(true);
+export default function ProductsSync({ pendingSales, isSyncing, lastSync, onSyncSales }: ProductsSyncProps) {
+  const [syncStatus, setSyncStatus] = React.useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
+  const handleSync = async () => {
+    if (isSyncing) return;
+    setErrorMessage(null);
     setSyncStatus('syncing');
-
-    // Simulate sync process
-    setTimeout(() => {
-      setIsSyncing(false);
+    try {
+      await onSyncSales();
       setSyncStatus('success');
-      setLastSync(new Date().toLocaleString());
-      setPendingUploads(0);
-
-      // Reset status after 3 seconds
-      setTimeout(() => {
-        setSyncStatus('idle');
-      }, 3000);
-    }, 2000);
+      setTimeout(() => setSyncStatus('idle'), 2000);
+    } catch (error) {
+      setSyncStatus('error');
+      const message = error instanceof Error ? error.message : 'Sync failed. Please try again.';
+      setErrorMessage(message);
+    }
   };
 
   return (
@@ -45,10 +47,10 @@ export default function ProductsSync() {
 
           <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-gray-100">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-gray-600">Pending Items</span>
+              <span className="text-gray-600">Pending Sales</span>
               <Upload className="w-6 h-6 text-orange-500" />
             </div>
-            <p className="text-orange-600">{pendingUploads}</p>
+            <p className="text-orange-600 text-2xl font-semibold">{pendingSales}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-gray-100">
