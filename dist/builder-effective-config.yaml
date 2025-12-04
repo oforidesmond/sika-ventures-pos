@@ -1,0 +1,18 @@
+directories:
+  output: dist
+  buildResources: buildResources
+appId: com.sikaventures.pos
+productName: Sika Ventures POS
+files:
+  - filter:
+      - build/**/*
+      - electron/**/*
+      - package.json
+win:
+  target: nsis
+  artifactName: SikaVenturesPOS-${version}-Setup.${ext}
+publish:
+  - provider: github
+    owner: oforidesmond
+    repo: sika-ventures-pos
+electronVersion: 28.3.3

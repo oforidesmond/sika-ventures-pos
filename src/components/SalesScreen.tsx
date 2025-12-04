@@ -157,6 +157,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products..."
+              autoFocus
               className="w-full pl-16 pr-6 py-5 border-2 border-gray-200 rounded-2xl text-lg focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>

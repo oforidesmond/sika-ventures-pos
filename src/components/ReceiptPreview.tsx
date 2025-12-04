@@ -9,7 +9,11 @@ interface ReceiptPreviewProps {
 
 export default function ReceiptPreview({ sale, onBackToPOS }: ReceiptPreviewProps) {
   const handlePrint = () => {
-    window.print();
+    if (window.electronAPI?.printReceipt) {
+      window.electronAPI.printReceipt(sale);
+    } else {
+      window.print();
+    }
   };
 
   // Get shop info from localStorage

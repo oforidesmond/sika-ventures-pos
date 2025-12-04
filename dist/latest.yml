@@ -1,0 +1,8 @@
+version: 0.1.0
+files:
+  - url: SikaVenturesPOS-0.1.0-Setup.exe
+    sha512: gtWoTGN62tROZGT7+yUjPuAzZCDg3krPlihowENIkhEQLV8XQMZEspLC9abVRecBRkU1onaN2ApZoBXXXrdg0g==
+    size: 87582383
+path: SikaVenturesPOS-0.1.0-Setup.exe
+sha512: gtWoTGN62tROZGT7+yUjPuAzZCDg3krPlihowENIkhEQLV8XQMZEspLC9abVRecBRkU1onaN2ApZoBXXXrdg0g==
+releaseDate: '2025-12-04T22:08:27.440Z'

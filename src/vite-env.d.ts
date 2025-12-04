@@ -8,3 +8,9 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+interface Window {
+  electronAPI?: {
+    printReceipt: (sale: import('./types/sales').Sale) => void;
+  };
+}
