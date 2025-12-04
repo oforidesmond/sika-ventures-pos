@@ -213,8 +213,8 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
       </div>
 
       {/* Right Sidebar - Cart */}
-      <div className="w-96 bg-gray-50 border-l-2 border-gray-100 flex flex-col">
-        <div className="p-6 border-b-2 border-gray-100">
+      <div style={{width: '35rem'}} className="bg-gray-50 border-l-2 border-gray-100 flex flex-col">
+        <div className="p-3 border-b-2 border-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <ShoppingBag className="w-7 h-7 text-blue-500" strokeWidth={2.5} />
@@ -226,7 +226,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
                 className="flex items-center gap-2 bg-white border-2 border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 {paymentMethodLabels[paymentMethod]}
-                <ChevronDown className="w-4 h-4 text-gray-500" />
+                <ChevronDown className="w-5 h-4 text-gray-500" />
               </button>
               {showPaymentMethods && (
                 <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
@@ -258,19 +258,19 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
             placeholder="Customer Name (Optional)"
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors bg-white"
+            className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors bg-white"
           />
         </div>
 
         {/* Cart Items */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-2">
           {cart.length === 0 ? (
             <div className="text-center py-12">
               <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-400">Cart is empty</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {cart.map(item => (
                 <div key={item.id} className="bg-white rounded-xl p-4 shadow-sm">
                   <div className="flex justify-between items-start mb-3">
@@ -310,7 +310,7 @@ export default function SalesScreen({ cart, setCart, onCompleteSale }: SalesScre
         </div>
 
         {/* Cart Summary */}
-        <div className="border-t-2 border-gray-100 p-6 space-y-4">
+        <div className="border-t-2 border-gray-100 p-3 space-y-2">
           <div className="flex justify-between text-gray-600">
             <span>Subtotal:</span>
             <span>₵{subtotal.toFixed(2)}</span>
