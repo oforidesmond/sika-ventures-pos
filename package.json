@@ -66,7 +66,7 @@
       "scripts": {
             "dev": "vite dev",
             "build": "vite build",
-            "electron:dev": "concurrently -k \"npm:dev\" \"wait-on http://localhost:3000 && electron .\"",
+            "electron:dev": "concurrently -k \"npm:dev\" \"wait-on http://localhost:3001 && electron .\"",
             "electron:build": "npm run build && electron-builder --publish always"
       },
       "build": {
@@ -82,7 +82,8 @@
             },
             "win": {
                   "target": "nsis",
-                  "artifactName": "SikaVenturesPOS-${version}-Setup.${ext}"
+                  "artifactName": "SikaVenturesPOS-${version}-Setup.${ext}",
+                  "icon": "public/pos-icon.ico"
             },
             "publish": [
                   {

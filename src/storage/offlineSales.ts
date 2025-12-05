@@ -2,7 +2,9 @@ import initSqlJs, { Database, SqlJsStatic } from 'sql.js';
 import { CartItem, Sale } from '../types/sales';
 
 const DB_STORAGE_KEY = 'sika_offline_sales_db';
-const SQL_WASM_PATH = '/sql-wasm.wasm';
+// Use a relative path so it works in Vite dev (http://localhost:3000)
+// and in the packaged Electron app (file://.../build/).
+const SQL_WASM_PATH = 'sql-wasm.wasm';
 
 let dbPromise: Promise<Database> | null = null;
 

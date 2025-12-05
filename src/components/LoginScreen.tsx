@@ -5,7 +5,7 @@ interface LoginScreenProps {
   onLogin: () => void;
 }
 
-const LOGIN_API_URL = 'http://localhost:3000/api/auth/login';
+const LOGIN_API_URL = import.meta.env.VITE_AUTH_API_URL ?? 'http://localhost:3002/api/auth/login';
 
 export default function LoginScreen({ onLogin }: LoginScreenProps) {
   const [username, setUsername] = useState('');
@@ -31,10 +31,16 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await response.json();
+      let data: any = null;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Unable to login.');
+        const message = data?.error || `Unable to login (status ${response.status}).`;
+        throw new Error(message);
       }
 
       // Store auth token and user data
